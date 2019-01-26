@@ -145,13 +145,6 @@ void PrintGrid(Node &n){
         std::cout<<row<<std::endl;
     }
     std::cout<<std::endl;
-//
-//    if (n.parent != nullptr){
-//        PrintGrid(*n.parent);
-//        std::cout<<n.row_number<<" "<<n.row<<std::endl;
-//    }else{
-//        std::cout<<std::endl;
-//    }
 }
 
 bool IsValid3Row(std::bitset<N> row1, std::bitset<N> row2, std::bitset<N> row3){
