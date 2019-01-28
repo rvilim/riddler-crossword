@@ -2,7 +2,7 @@
 // Created by Ryan Vilim on 2019-01-28.
 //
 #include <iostream>
-
+#include <set>
 #include "masks.h"
 
 std::array<std::vector<std::bitset<N> >, 1<<N > GetSegmentedMasks(){
@@ -10,7 +10,6 @@ std::array<std::vector<std::bitset<N> >, 1<<N > GetSegmentedMasks(){
 
     for (int i=0; i< 1<<N ; i++){
         std::bitset<N> mask(i);
-        std::cout<<"--"<<mask<<" ";
 
         auto masks = SegmentMask(mask);
 
@@ -33,6 +32,11 @@ std::vector<std::bitset<N>> SegmentMask(std::bitset<N> &mask){
      * 100100101 -> 011000000, 000011000, 00000010
      *
      */
+
+    if (mask.all()){
+        return masks;
+    }
+
     for(unsigned int i=0; i<N; i++){
 
         if (!mask.test(i)){
@@ -49,10 +53,19 @@ std::vector<std::bitset<N>> SegmentMask(std::bitset<N> &mask){
         }
     }
 
-    if (masks.empty()){
-        std::bitset<N> m;
-        masks.push_back(m.flip());
-    }
-
     return masks;
+}
+
+std::set<std::bitset<N>, MaskCmp> GetNewMasks(std::bitset<N> &prevrow, std::bitset<N> &currentrow, std::vector<std::bitset<N>> &prevmasks) {
+    std::set<std::bitset<N>, MaskCmp> newmasks;
+
+    for (const std::bitset<N>& prevmask : prevmasks){
+        std::bitset<N> newmask = (~currentrow & (prevmask | prevrow));
+
+        if (newmask.any()){
+            newmasks.emplace(newmask);
+        }
+
+    }
+    return newmasks;
 }

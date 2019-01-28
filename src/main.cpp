@@ -3,6 +3,7 @@
 #include <string>         // std::string
 #include <bitset>         // std::bitset
 #include <vector>
+#include <set>
 #include <unordered_map>
 #include <array>
 
@@ -45,7 +46,6 @@ int main ()
     std::cout<<"Number of valid rows: "<<valid_rows.size()<<std::endl;
 
 //    GetNumGrids(valid_rows, 0, head);
-
 }
 
 int GetNumGrids(std::vector<std::bitset<N> > &valid_rows, int i, Node &n){
