@@ -20,7 +20,7 @@ TEST_CASE( "Segment mask", "[mask]" ) {
 
 
     // Test 1
-    std::vector<std::bitset<N>> expected1 = {
+    std::set<std::bitset<N>,MaskCmp> expected1 = {
             std::bitset<N>(std::string("11100000")),
             std::bitset<N>(std::string("00001100")),
             std::bitset<N>(std::string("00000001"))
@@ -28,13 +28,10 @@ TEST_CASE( "Segment mask", "[mask]" ) {
 
     auto segmented1 = SegmentMask(row1);
 
-    std::sort(expected1.begin(), expected1.end(), [](const auto & lhs, const auto & rhs){ return lhs.to_string() < rhs.to_string(); });
-    std::sort(segmented1.begin(), segmented1.end(), [](const auto & lhs, const auto & rhs){ return lhs.to_string() < rhs.to_string(); });
-
     REQUIRE(expected1==segmented1);
 
     // Test 2
-    std::vector<std::bitset<N>> expected2 = {
+    std::set<std::bitset<N>,MaskCmp> expected2 = {
             std::bitset<N>(std::string("00000001"))
     };
     auto segmented2 = SegmentMask(row2);
@@ -46,7 +43,7 @@ TEST_CASE( "Segment mask", "[mask]" ) {
     REQUIRE(segmented3.empty());
 
     // Test 4
-    std::vector<std::bitset<N>> expected4 = {
+    std::set<std::bitset<N>,MaskCmp> expected4 = {
             std::bitset<N>(std::string("11111111"))
     };
 
@@ -58,7 +55,7 @@ TEST_CASE( "Segment mask", "[mask]" ) {
 TEST_CASE( "Next Mask", "[mask]" ) {
     // Test 1
     std::bitset<N> prevrow1(std::string("00010000"));
-    std::vector<std::bitset<N>> prevmasks1 = SegmentMask(prevrow1);
+    std::set<std::bitset<N>,MaskCmp> prevmasks1 = SegmentMask(prevrow1);
     std::bitset<N> currentrow1(std::string("11010001"));
 
     std::set<std::bitset<N>,MaskCmp> expected1 = { std::bitset<N>(std::string("00100000")),
@@ -69,21 +66,41 @@ TEST_CASE( "Next Mask", "[mask]" ) {
 
     // Test 2
     std::bitset<N> prevrow2(std::string("00000000"));
-    std::vector<std::bitset<N>> prevmasks2 = SegmentMask(prevrow1);
+    std::set<std::bitset<N>,MaskCmp> prevmasks2 = SegmentMask(prevrow2);
     std::bitset<N> currentrow2(std::string("11011011"));
 
-    std::set<std::bitset<N>,MaskCmp> expected2 = { std::bitset<N>(std::string("00100000")),
-                                                   std::bitset<N>(std::string("00000100")) };
+    std::set<std::bitset<N>,MaskCmp> expected2 = { std::bitset<N>(std::string("00100100")) };
 
     REQUIRE(expected2==GetNewMasks(prevrow2, currentrow2, prevmasks2));
 
     // Test 3
     std::bitset<N> prevrow3(std::string("11111111"));
-    std::vector<std::bitset<N>> prevmasks3 = SegmentMask(prevrow1);
+    std::set<std::bitset<N>,MaskCmp> prevmasks3 = SegmentMask(prevrow3);
     std::bitset<N> currentrow3(std::string("11101111"));
 
     std::set<std::bitset<N>,MaskCmp> expected3 = { std::bitset<N>(std::string("00010000")) };
 
     REQUIRE(expected3==GetNewMasks(prevrow3, currentrow3, prevmasks3));
+
+    // Test 4
+    std::bitset<N> prevrow4(std::string("11111111"));
+    std::set<std::bitset<N>,MaskCmp> prevmasks4 = SegmentMask(prevrow4);
+    std::bitset<N> currentrow4(std::string("11101101"));
+
+    std::set<std::bitset<N>,MaskCmp> expected4 = { std::bitset<N>(std::string("00010000")),
+                                                   std::bitset<N>(std::string("00000010")) };
+
+    REQUIRE(expected4==GetNewMasks(prevrow4, currentrow4, prevmasks4));
+
+    // Test 5
+    std::bitset<N> prevrow5(std::string("11111101"));
+    std::set<std::bitset<N>,MaskCmp> prevmasks5 = SegmentMask(prevrow5);
+    std::bitset<N> currentrow5(std::string("10101101"));
+
+    std::set<std::bitset<N>,MaskCmp> expected5 = { std::bitset<N>(std::string("01000000")),
+                                                   std::bitset<N>(std::string("00010000")),
+                                                   std::bitset<N>(std::string("00000010"))};
+
+    REQUIRE(expected5==GetNewMasks(prevrow5, currentrow5, prevmasks5));
 
 }

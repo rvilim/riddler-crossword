@@ -5,6 +5,7 @@
 #include <bitset>
 #include <vector>
 #include <array>
+#include <set>
 
 #include "params.h"
 
@@ -17,8 +18,8 @@ struct MaskCmp {
     }
 };
 
-std::array<std::vector<std::bitset<N> >, 1<<N > GetSegmentedMasks();
-std::vector<std::bitset<N>> SegmentMask(std::bitset<N> &mask);
-std::set<std::bitset<N>, MaskCmp> GetNewMasks(std::bitset<N> &prevrow, std::bitset<N> &currentrow, std::vector<std::bitset<N>> &prevmasks);
+std::array< std::set<std::bitset<N>,MaskCmp>, 1<<N > GetSegmentedMasks();
+std::set<std::bitset<N>,MaskCmp> SegmentMask(std::bitset<N> &mask);
+std::set<std::bitset<N>, MaskCmp> GetNewMasks(std::bitset<N> &prevrow, std::bitset<N> &currentrow, std::set<std::bitset<N>, MaskCmp> &prevmasks);
 
 #endif //RIDDLER_CROSSWORD_MASKS_H

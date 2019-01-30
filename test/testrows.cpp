@@ -35,37 +35,86 @@ TEST_CASE("Valid row", "[row]") {
     REQUIRE(ValidRow(row5)==true);
 }
 
-TEST_CASE("Valid last row", "[row]"){
-    std::bitset<N> row1         (std::string("10010011"));
-    std::bitset<N> row2         (std::string("00010010"));
-    std::bitset<N> row3         (std::string("00010010"));
-    std::bitset<N> row4_valid   (std::string("00100010"));
-    std::bitset<N> row4_invalid (std::string("10110010"));
-
-    REQUIRE(IsValidLastRow(row1, row2, row3, row4_valid)==true);
-    REQUIRE(IsValidLastRow(row1, row2, row3, row4_invalid)==false);
-
-}
-
 TEST_CASE("Valid 4 row", "[row]"){
-    std::bitset<N> row1         (std::string("10010011"));
-    std::bitset<N> row2         (std::string("00010010"));
-    std::bitset<N> row3         (std::string("00010010"));
-    std::bitset<N> row4_valid   (std::string("00100010"));
-    std::bitset<N> row4_invalid (std::string("10110010"));
+    //Test 1
+    std::bitset<N> row1_1         (std::string("10010011"));
+    std::bitset<N> row2_1         (std::string("00010010"));
+    std::bitset<N> row3_1         (std::string("00010010"));
+    std::bitset<N> row4_1_invalid (std::string("10110010"));
+    std::bitset<N> row4_1_valid   (std::string("00100010"));
 
-    REQUIRE(IsValid4Row(row1, row2, row3, row4_valid)==true);
-    REQUIRE(IsValid4Row(row1, row2, row3, row4_invalid)==false);
+    REQUIRE(IsValid4Row(row1_1, row2_1, row3_1, row4_1_valid)==true);
+    REQUIRE(IsValid4Row(row1_1, row2_1, row3_1, row4_1_invalid)==false);
+
+    //Test 2
+    std::bitset<N> row1_2         (std::string("11111111"));
+    std::bitset<N> row2_2         (std::string("11111111"));
+    std::bitset<N> row3_2         (std::string("11111111"));
+    std::bitset<N> row4_2_valid   (std::string("11111111"));
+
+    REQUIRE(IsValid4Row(row1_2, row2_2, row3_2, row4_2_valid)==true);
+
+    //Test 3
+    std::bitset<N> row1_3         (std::string("11111111"));
+    std::bitset<N> row2_3         (std::string("11111111"));
+    std::bitset<N> row3_3         (std::string("11100000"));
+    std::bitset<N> row4_3_valid   (std::string("11000000"));
+
+    REQUIRE(IsValid4Row(row1_3, row2_3, row3_3, row4_3_valid)==true);
+
 }
 
 TEST_CASE("Valid 3 row", "[row]"){
-    std::bitset<N> row1         (std::string("10010011"));
-    std::bitset<N> row2         (std::string("00010010"));
-    std::bitset<N> row3_valid   (std::string("00100010"));
-    std::bitset<N> row3_invalid (std::string("10100010"));
-    std::bitset<N> row3_invalid_2 (std::string("10100011"));
+    //Test 1
+    std::bitset<N> row1_1         (std::string("10010011"));
+    std::bitset<N> row2_1         (std::string("00010010"));
+    std::bitset<N> row3_1_valid   (std::string("00100010"));
+    std::bitset<N> row3_1_invalid (std::string("10100010"));
+    std::bitset<N> row3_1_invalid_2 (std::string("10100011"));
 
-    REQUIRE(IsValid3Row(row1, row2, row3_valid)==true);
-    REQUIRE(IsValid3Row(row1, row2, row3_invalid)==false);
-    REQUIRE(IsValid3Row(row1, row2, row3_invalid_2)==false);
+    REQUIRE(IsValid3Row(row1_1, row2_1, row3_1_valid)==true);
+    REQUIRE(IsValid3Row(row1_1, row2_1, row3_1_invalid)==false);
+    REQUIRE(IsValid3Row(row1_1, row2_1, row3_1_invalid_2)==false);
+
+    //Test 2
+    std::bitset<N> row1_2         (std::string("11111111"));
+    std::bitset<N> row2_2         (std::string("11000001"));
+    std::bitset<N> row3_2_valid   (std::string("00000001"));
+    std::bitset<N> row3_2_invalid (std::string("00000011"));
+
+    REQUIRE(IsValid3Row(row1_2, row2_2, row3_2_valid)==true);
+    REQUIRE(IsValid3Row(row1_2, row2_2, row3_2_invalid)==false);
+}
+
+
+TEST_CASE("Valid last row", "[row]"){
+    //Test 1
+    std::set<std::bitset<N>, MaskCmp> masks;
+
+    std::bitset<N> row1_1         (std::string("11111111"));
+    std::bitset<N> row2_1         (std::string("11100000"));
+    std::bitset<N> row3_1         (std::string("10000000"));
+    std::bitset<N> row4_1_valid   (std::string("00000000"));
+    std::bitset<N> row4_1_invalid (std::string("00110010"));
+
+
+    REQUIRE(IsValidLastRow(masks, row1_1, row2_1, row3_1, row4_1_valid)==true);
+    REQUIRE(IsValidLastRow(masks, row1_1, row2_1, row3_1, row4_1_invalid)==false);
+
+    //Test 2
+    std::bitset<N> row1_2         (std::string("11111111"));
+    std::bitset<N> row2_2         (std::string("11111111"));
+    std::bitset<N> row3_2         (std::string("11101111"));
+    std::bitset<N> row4_2_valid   (std::string("11101111"));
+
+    REQUIRE(IsValidLastRow(masks, row1_2, row2_2, row3_2, row4_2_valid)==false);
+
+    //Test 3
+    std::bitset<N> row1_3         (std::string("11111111"));
+    std::bitset<N> row2_3         (std::string("11111111"));
+    std::bitset<N> row3_3         (std::string("11111111"));
+    std::bitset<N> row4_3_valid   (std::string("11111111"));
+
+    REQUIRE(IsValidLastRow(masks, row1_3, row2_3, row3_3, row4_3_valid)==true);
+
 }

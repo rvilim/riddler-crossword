@@ -17,12 +17,15 @@ struct Node {
     std::bitset<N> row;
     Node *parent;
     std::vector<Node*> children;
+    std::set<std::bitset<N>, MaskCmp> masks;
     int row_number;
 };
 
 void PrintGrid(Node &n);
 
-int GetNumGrids(std::vector<std::bitset<N> > &valid_rows, int i, Node &n);
+int GetNumGrids(int row_number, Node &n);
+
+std::vector<std::bitset<N> > valid_rows, valid_symmetric_rows;
 
 int main ()
 {
@@ -31,78 +34,83 @@ int main ()
         return 1;
     }
 
-    std::array<std::vector<std::bitset<N> >, 1<<N > segmented_masks;
-    std::vector<std::bitset<N> > valid_rows;
+    std::array< std::set<std::bitset<N>,MaskCmp>, 1<<N > segmented_masks;
     std::unordered_map<std::string, std::vector<std::bitset<N> > > a;
     Node head;
 
     segmented_masks=GetSegmentedMasks();
 
-    for(int i=0; i<segmented_masks[4].size(); i++){
-        std::cout<<segmented_masks[4][i]<<std::endl;
-    }
-
     valid_rows = GetValidRows();
-    std::cout<<"Number of valid rows: "<<valid_rows.size()<<std::endl;
+    valid_symmetric_rows = GetValidSymmetricRows(valid_rows);
 
-//    GetNumGrids(valid_rows, 0, head);
+    std::cout<<GetNumGrids(-1, head)<<std::endl;
 }
 
-int GetNumGrids(std::vector<std::bitset<N> > &valid_rows, int i, Node &n){
+int GetNumGrids(int row_number, Node &n){
     int tot=0;
 
-    if(i==0){
-        for(int j=0; j<valid_rows.size(); j++){
+    if(row_number==-1) {
+        n.row.set(); // This is the 0th row (not part of the grid, set everything to one
 
-            std::vector<Node*> children;
+        for (int j = 0; j < valid_rows.size(); j++) {
 
-            Node new_node {valid_rows[j], &n, children, i+1};
+            std::vector<Node *> children;
 
-            n.row = valid_rows[valid_rows.size()-1];
+            n.row_number=row_number;
+            n.parent= nullptr;
+            n.row.set();
+
+            Node new_node{valid_rows[j], &n, children, std::set<std::bitset<N>, MaskCmp>(), row_number + 1};
+
             n.children.push_back(&new_node);
-            n.parent = nullptr;
 
-            tot+=GetNumGrids(valid_rows, 1, new_node);
-            std::cout<<j<<" "<<tot<<std::endl;
+            tot += GetNumGrids(0, new_node);
         }
         return tot;
-
-    } else if(i==1) {
-
+    } else if(row_number==0) {
         for(int j=0; j<valid_rows.size(); j++){
-            if(IsValid3Row(n.parent->row, n.row, valid_rows[j])){
+                    std::set<std::bitset<N>, MaskCmp> new_masks = GetNewMasks(n.row, valid_rows[j], n.masks);
 
+            if( (IsValid3Row(n.parent->row, n.row, valid_rows[j])) ){
                 std::vector<Node*> children;
 
-                Node new_node {valid_rows[j], &n, children, i+1};
+                Node new_node {valid_rows[j], &n, children, std::set<std::bitset<N>, MaskCmp>(), row_number+1};
                 n.children.push_back(&new_node);
-
-                tot+=GetNumGrids(valid_rows, 2, new_node);
+                n.masks = GetNewMasks(n.parent->row, valid_rows[j], n.parent->masks);
+                tot+=GetNumGrids(row_number+1, new_node);
             }
         }
         return tot;
 
-    } else if((i>=2) && (i<N/2)) {
+    } else if((row_number>=1) && (row_number<=N/2-2)) { // N=7 >=1 <=1
         for (int j = 0; j < valid_rows.size(); j++) {
+            auto new_masks = GetNewMasks(n.row, valid_rows[j], n.masks);
+
             if (IsValid4Row(n.parent->parent->row, n.parent->row, n.row, valid_rows[j])) {
                 std::vector<Node *> children;
 
-                Node new_node{valid_rows[j], &n, children, i + 1};
+                Node new_node{valid_rows[j], &n, children, std::set<std::bitset<N>, MaskCmp>(), row_number + 1};
                 n.children.push_back(&new_node);
+                n.masks = GetNewMasks(n.parent->row, valid_rows[j], n.parent->masks);
 
-                tot += GetNumGrids(valid_rows, i + 1, new_node);
+                tot += GetNumGrids(row_number + 1, new_node);
             }
         }
         return tot;
-    } else if(i==N/2) {
-        for(int j=0; j<valid_rows.size(); j++) {
-            if (IsValidLastRow(n.parent->parent->row, n.parent->row, n.row, valid_rows[j])) {
+
+    } else if(row_number==N/2-1) { // N=7 ==2
+        for(int j=0; j<valid_symmetric_rows.size(); j++) {
+            std::set<std::bitset<N>, MaskCmp> new_masks = GetNewMasks(n.row, valid_symmetric_rows[j], n.masks);
+
+            if (IsValidLastRow(new_masks, n.parent->parent->row, n.parent->row, n.row, valid_symmetric_rows[j])) {
 
                 std::vector<Node*> children;
 
-                Node new_node {valid_rows[j], &n, children, i+1};
+                Node new_node {valid_symmetric_rows[j], &n, children, std::set<std::bitset<N>, MaskCmp>(), row_number+1};
+                n.children.push_back(&new_node);
                 tot+=1;
-//                PrintGrid(new_node);
+
+                PrintGrid(new_node);
             }
         }
         return tot;
@@ -116,7 +124,7 @@ void PrintGrid(Node &n){
 
     std::array<std::bitset<N>, N> rows;
 
-    while (a.parent!=nullptr){
+    while (a.parent != nullptr){
         if(i==N/2){
             rows[i]=a.row;
         }else{
