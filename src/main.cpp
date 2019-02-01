@@ -1,12 +1,13 @@
 // constructing bitsets
-#include <iostream>       // std::cout
+#include <iostream>
+#include <iomanip>
 #include <string>         // std::string
 #include <bitset>         // std::bitset
 #include <vector>
 #include <set>
 #include <unordered_map>
 #include <array>
-
+#include <ctime>
 #include <assert.h>
 
 #include "params.h"
@@ -50,6 +51,7 @@ int GetNumGrids(int row_number, Node &n){
     int tot=0;
 
     if(row_number==-1) {
+        clock_t startTime = clock(); //Start timer
         n.row.set(); // This is the 0th row (not part of the grid, set everything to one
 
         for (int j = 0; j < valid_rows.size(); j++) {
@@ -64,7 +66,13 @@ int GetNumGrids(int row_number, Node &n){
 
             n.children.push_back(&new_node);
 
-            tot += GetNumGrids(0, new_node);
+            auto n = GetNumGrids(0, new_node);
+
+            auto elapsed = float(clock() - startTime) / CLOCKS_PER_SEC;
+            std::cout<<std::fixed << std::setprecision(0) << 100*float(j)/valid_rows.size()<<"%, ";
+            std::cout<<n<<" Grids found, ";
+            std::cout<<tot/elapsed<<" Grids per second"<<std::endl<<std::flush;
+            tot += n;
         }
         return tot;
     } else if(row_number==0) {
@@ -110,7 +118,7 @@ int GetNumGrids(int row_number, Node &n){
                 n.children.push_back(&new_node);
                 tot+=1;
 
-                PrintGrid(new_node);
+//                PrintGrid(new_node);
             }
         }
         return tot;

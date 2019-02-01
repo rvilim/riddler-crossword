@@ -7,6 +7,7 @@
 
 // The size of the crossword grid.
 #ifdef TESTING
+    // Don't change this unless you've changed the tests, they have a ton of hard coded bitsets of length 8
     const int N=8;
 #else
     const int N=7;
